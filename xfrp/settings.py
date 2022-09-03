@@ -115,6 +115,8 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+from oauthlib.oauth2.rfc6749.tokens import signed_token_generator
+
 OAUTH2_PROVIDER = {
     "OIDC_ENABLED": True,
     "OIDC_RSA_PRIVATE_KEY": open(os.path.join(BASE_DIR, 'oidc.key'), 'r').read(),
@@ -124,7 +126,12 @@ OAUTH2_PROVIDER = {
         'write': 'Write scope',
         'groups': 'Access to your groups'
     },
-    # "ROTATE_REFRESH_TOKEN": True
+    "OAUTH2_SERVER_CLASS": "oauthlib.oauth2.Server",
+    # "OIDC_ISS_ENDPOINT":"http://39.103.202.168:8000/o",
+    "EXTRA_SERVER_KWARGS": {
+        "token_generator": signed_token_generator(open(os.path.join(BASE_DIR, 'oidc.key'), 'r').read(),
+                                                  **{'iss': 'http://39.103.202.168:8000/o', 'aud': 'openid'})
+    },
 }
 
 REST_FRAMEWORK = {
